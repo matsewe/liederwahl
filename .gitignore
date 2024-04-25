@@ -1,0 +1,4 @@
+__pycache__
+.venv
+service_account.json
+db.sqlite
