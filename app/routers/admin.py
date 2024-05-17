@@ -1,8 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, Security
-from app.models import Genre, Song, GoogleFile
-from app.dependencies import get_token_header, dbEngine
-from app.routers.user import get_current_user, User
-from typing import Annotated
+from fastapi import APIRouter, HTTPException, Security, File, UploadFile
+from app.models import GoogleFile
+from app.dependencies import dbEngine
+from app.routers.user import get_current_user
 import gspread
 from gspread.urls import DRIVE_FILES_API_V3_URL
 import pandas as pd
@@ -93,3 +92,8 @@ def process_worksheets():
     song_list.to_sql(name='songs', con=dbEngine,
                      index=False, if_exists='append')
     # song_list.to_csv("song-list.csv")
+
+
+@router.post("/process_file")
+async def create_upload_file(file: UploadFile):
+    return {"filename": file.filename}

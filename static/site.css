@@ -1,0 +1,184 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    padding: 0.5em;
+}
+
+@media only screen and (min-resolution: 200dpi) {
+    body {
+        font-size: 3.2vmin;
+    }
+}
+
+.clear {
+    clear: both;
+}
+
+.song {
+    background-color: #f0f0f0;
+    padding: 0.4em;
+    border-radius: 0.5em;
+    width: 30em;
+    font-family: sans-serif;
+    margin-bottom: 1em;
+}
+
+
+.cover-container {
+    position: relative;
+    width: 10.67em;
+    height: 6em;
+    float: left;
+    margin-right: 1em;
+}
+
+.cover {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+
+.overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    opacity: 0;
+    transition: .3s ease;
+}
+
+.cover-container:hover {
+    cursor: pointer;
+}
+
+.cover-container:hover .overlay {
+    opacity: 1;
+    filter: drop-shadow(0px 0px 1em black);
+}
+
+.overlay img {
+    height: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    filter: invert();
+    transition: .1s ease;
+}
+
+.cover-container:active .overlay img {
+    height: 60%;
+}
+
+
+.vote-buttons {
+    display: inline-block;
+}
+
+.button {
+    height: 2em;
+    width: 3em;
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 1.5em;
+    position: relative;
+}
+
+.button img {
+    height: 30%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    transition: .1s ease;
+}
+
+.button:active img {
+    height: 40%;
+}
+
+.button-no {
+    background-color: #e1412f;
+    border-top-left-radius: 1em;
+    border-bottom-left-radius: 1em;
+}
+
+.button-neutral {
+    background-color: #f5bb00;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+.button-yes {
+    background-color: #48a84f;
+    border-top-right-radius: 1em;
+    border-bottom-right-radius: 1em;
+}
+
+.button:not(.selected):not(:hover) {
+    background-color: #b0b0b0;
+}
+
+.button:hover {
+    filter: drop-shadow(2px 2px 2px) brightness(95%);
+    cursor: pointer;
+}
+
+.button span {
+    position: relative;
+}
+
+.button-no span {
+    top: 10%;
+}
+
+.button-yes span {
+    top: 10%;
+}
+
+.button-neutral span {
+    top: 20%;
+}
+
+.categories {
+    width: 60%;
+    overflow: hidden;
+    cursor: grab;
+    white-space: nowrap;
+    font-size: 0.7em;
+    line-height: 1.2em;
+    margin-top: 0.2em;
+}
+
+.categories span {
+    border-radius: 1.2em;
+    padding: 0 0.5em 0 0.5em;
+    margin-right: 0.4em;
+    display: inline-block;
+    color: white;
+    max-width: 10em;
+    overflow: clip;
+}
+
+.vote-buttons {
+    margin-top: 0.5em;
+}
+
+.song-data {
+    width: 100%;
+    overflow: clip;
+    white-space: nowrap;
+}

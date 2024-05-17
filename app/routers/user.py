@@ -12,7 +12,7 @@ from app.secrets import SECRET_KEY, fake_users_db
 # openssl rand -hex 32
 
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 31
 
 
 class Token(BaseModel):
@@ -42,7 +42,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="user/token",
     scopes={
-        "admin": "Perform admin actions."
+        "admin": "Perform admin actions.",
+        "public": "Perform public actions."
     }
 )
 
@@ -65,6 +66,7 @@ def get_user(db, username: str):
         return UserInDB(**user_dict)
 
 
+
 def authenticate_user(fake_db, username: str, password: str):
     user = get_user(fake_db, username)
     if not user:
@@ -83,7 +85,6 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
-
 
 async def get_current_user(
     security_scopes: SecurityScopes, token: Annotated[str, Depends(oauth2_scheme)]
@@ -144,3 +145,11 @@ async def login_for_access_token(
         data={"sub": user.username, "scopes": user.scopes}, expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")
+
+# @router.get("/public_token")
+# async def get_public_access_token(secret_identity : str) -> Token:
+#     access_token_expires = timedelta(minutes=60*24*365)
+#     access_token = create_access_token(
+#         data={"sub": "public", "secret_identity" : secret_identity, "scopes": ["public"]}, expires_delta=access_token_expires
+#     )
+#     return Token(access_token=access_token, token_type="bearer")

@@ -1,6 +1,11 @@
 import sqlalchemy
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
+
+Base = automap_base()
 
 dbEngine = sqlalchemy.create_engine('sqlite:///db.sqlite')
 
-def get_token_header():
-    pass
+dbSession = Session(dbEngine)
+
+Base.prepare(dbEngine, reflect=True)
