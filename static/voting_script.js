@@ -78,25 +78,36 @@ function vote(song_id, vote) {
 
 const getQueryParameter = (param) => new URLSearchParams(document.location.search.substring(1)).get(param);
 
+var all_songs = {}
+
 $(document).ready(function () {
     var session_id = getQueryParameter("session_id");
 
     var songTemplate = $('script[data-template="song"]').text().split(/\$\{(.+?)\}/g);
 
     function render(props) {
-        return function(tok, i) { return (i % 2) ? props[tok] : tok; };
+        return function (tok, i) { return (i % 2) ? props[tok] : tok; };
     }
 
-    song_list = {}
+
 
     $.ajax({
-        url: "/songs",
+        url: "/songs/",
         data: { user_id: session_id }
     }).then(function (songs) {
+        song_list = {}
+
+        cat_to_id = {}
+
         $.each(songs, function (key, song) {
+
+            all_songs[song.id] = song;
 
             var mc = song.main_category;
 
+            if (!song.is_aca) {
+                mc = "Wildcard"
+            }
             if (!(mc in song_list)) {
                 song_list[mc] = ""
             }
@@ -107,25 +118,102 @@ $(document).ready(function () {
                 if (is_cat) {
                     cats = cats + '<span class="cat-' + cat_id + '">' + cat_name + '</span>';
                 }
+                cat_to_id[cat_name] = cat_id
                 cat_id += 1
             });
+            cat_to_id["Wildcard"] = cat_id
 
-            
+
+            artist = "";
+            if (song.og_artist) {
+                artist += song.og_artist;
+                if (song.aca_artist && (song.aca_artist !== song.og_artist)) {
+                    artist += " / ";
+                    artist += song.aca_artist;
+                }
+            } else {
+                artist = song.aca_artist;
+            }
+
             var s = songTemplate.map(render({
-                "id" : song.id,
-                "title" : song.og_artist + ": " + song.title,
-                "cover_image" : "cover.jpg",
-                "no_selected" : (song.vote == -1) ? "selected" : "",
-                "neutral_selected" : (song.vote == 0) ? "selected" : "",
-                "yes_selected" : (song.vote == 1) ? "selected" : "",
-                "categories" : cats
+                "id": song.id,
+                "title": song.title,
+                "artist": artist, //song.og_artist + ": " + song.aca_artist
+                "cover_image": song.thumbnail,
+                "no_selected": (song.vote == -1) ? "selected" : "",
+                "neutral_selected": (song.vote == 0) ? "selected" : "",
+                "yes_selected": (song.vote == 1) ? "selected" : "",
+                "categories": cats
             })).join('')
 
             song_list[mc] += s
         });
-        $.each(song_list, function(mc, s) {
-            $('body').append("<h1>" + mc + "</h1>");
-            $('body').append(s);
+        $.each(cat_to_id, function (cat_name, cat_id) {
+            if (cat_name in song_list) {
+                $('#songs').append("<h1 class=\"cat-" + cat_id + "\">" + cat_name + "</h1>");
+                $('#songs').append(song_list[cat_name]);
+            }
         });
+
+        makeScroll();
     });
 });
+
+var is_playing = -1;
+
+var spotify_embed_controller;
+
+window.onSpotifyIframeApiReady = (IFrameAPI) => {
+    const element = document.getElementById('spotify-embed');
+    const options = {
+      width: '640',
+      height: '360'
+    };
+    const callback = (EmbedController) => {
+        spotify_embed_controller = EmbedController;
+    };
+    IFrameAPI.createController(element, options, callback);
+  };
+
+
+function play(id) {
+    $("#yt-player").css("display", "none");
+    $("#spotify-player").css("display", "none");
+    $("#close-player").css("display", "none");
+    $("#yt-player").html("");
+    spotify_embed_controller.pause();
+
+    if (is_playing == id) {
+        is_playing = -1;
+    } else {
+        is_playing = id;
+
+        song = all_songs[id];
+        yt_id = song.yt_url.split('v=')[1]
+        spotify_id = song.yt_url.split('/track/')[1]
+
+        if (yt_id) {
+            $("#yt-player").css("display", "flex");
+            $("#close-player").css("display", "block");
+            iframe_code = '<iframe src="https://www.youtube.com/embed/' + yt_id + '?autoplay=1" title="" width="640" height="360" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"  allowFullScreen></iframe>';
+            $("#yt-player").html(iframe_code);
+        }
+        else if (spotify_id) {
+            $("#spotify-player").css("display", "flex");
+            $("#close-player").css("display", "block");
+            spotify_embed_controller.loadUri("spotify:track:" + spotify_id);
+            spotify_embed_controller.play();
+        }
+        else {
+            $("#yt-player").css("display", "none");
+            $("#spotify-player").css("display", "none");
+            $("#yt-player").html("");
+            spotify_embed_controller.pause();
+            window.open(song.yt_url, '_blank').focus();
+        }
+    }
+}
+
+//<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/2DS7lDZNFM7safSGNm8vd4?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+
+// https://open.spotify.com/intl-de/track/2DS7lDZNFM7safSGNm8vd4

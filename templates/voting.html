@@ -4,20 +4,22 @@
         <title>Liederwahl</title>
         <link rel="stylesheet" type="text/css" href="/static/colors.css">
         <link rel="stylesheet" type="text/css" href="/static/site.css">
+        <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script src="/static/voting_script.js"></script>
         <script type="text/template" data-template="song">
             <div class="song" id="song-${id}">
                 <div class="cover-container">
-                    <img src="/static/${cover_image}" class="cover">
-                    <div class="overlay"><img src="/static/play.svg"></div>
+                    <img src="${cover_image}" class="cover">
+                    <div class="overlay" onclick="play(${id})"><img src="/static/play.svg"></div>
                 </div>
-                <div class="song-data">${title}</div>
+                <div class="song-title">${title}</div>
+                <div class="song-artist">${artist}</div>
                 <div class="categories" id="container">
-                    ${categories}
+                    ${categories}<span style="--main-color: transparent;">&nbsp;</span>
                 </div>
                 <div class="vote-buttons">
-                    <div class="button button-no ${no_selected}" onmousedown="vote(${id}, -1)"><img src="/static/no.svg"></div><div class="button button-neutral ${neutral_selected}" onmousedown="vote(${id}, 0)"><img src="/static/neutral.svg"></div><div class="button button-yes ${yes_selected}" onmousedown="vote(${id}, 1)"><img src="/static/yes.svg"></div>
+                    <div class="button button-no ${no_selected}" onmousedown="vote(${id}, -1); return false;" onclick="return false;"><img src="/static/no.svg"></div><div class="button button-neutral ${neutral_selected}" onmousedown="vote(${id}, 0)"><img src="/static/neutral.svg"></div><div class="button button-yes ${yes_selected}" onmousedown="vote(${id}, 1)"><img src="/static/yes.svg"></div>
                 </div>
                 <div class="clear"></div>
             </div>  
@@ -26,6 +28,11 @@
     </head>
 
     <body>
+        <div id="songs"></div>
+        <div id="spotify-player"><div id="spotify-embed"></div></div>
+        <div id="yt-player"></div>
+        <div id="close-player"><img src="/static/no.svg"></div>
+    
         <!--<div class="song">
             <div class="cover-container">
                 <img src="{{ url_for('static', path='/cover.jpg') }}" class="cover">
@@ -39,7 +46,7 @@
                 <div class="button button-no"><img src="{{ url_for('static', path='/no.svg') }}"></div><div class="button button-neutral"><img src="{{ url_for('static', path='/neutral.svg') }}"></div><div class="button button-yes selected"><img src="{{ url_for('static', path='/yes.svg') }}"></div>
             </div>
             <div class="clear"></div>
-        </div>-->        
+        </div>-->      
     </body>
 </html>
 

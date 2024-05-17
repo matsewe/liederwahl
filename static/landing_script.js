@@ -5,4 +5,5 @@ $(document).ready(function () {
         localStorage.setItem('session_id', s_id)
     }
     $('.vote-from-existing').attr('href', '?session_id=' + s_id);
+    window.location.href = "/?session_id=" + s_id;
 });

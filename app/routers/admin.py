@@ -4,6 +4,8 @@ from app.dependencies import session
 from app.routers.user import get_current_user
 import pandas as pd
 import numpy as np
+import re
+import requests
 
 router = APIRouter(
     prefix="/admin",
@@ -20,6 +22,27 @@ def get_main_category(categories) -> int:
     else:
         return np.argmax(categories != None, axis=0)
 
+def youtube_url_validation(url):
+    youtube_regex = (
+        r'(https?://)?(www\.)?'
+        '(youtube|youtu|youtube-nocookie)\.(com|be)/'
+        '(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})')
+
+    youtube_regex_match = re.match(youtube_regex, url)
+    if youtube_regex_match:
+        return youtube_regex_match
+
+    return False
+
+def get_thumbnail(url):
+    m = youtube_url_validation(url)
+    if m:
+        thumbnail_url = "https://img.youtube.com/vi/" + m.group(6) + "/mqdefault.jpg"
+        return thumbnail_url
+    elif "spotify" in url:
+        return re.findall(r'(https?://i.scdn.co/image[^"]+)', requests.get(url).text)[0]
+    else:
+        return "/static/cover.jpg"
 
 @router.post("/process_file")
 async def create_upload_file(link_share: str):
@@ -36,6 +59,7 @@ async def create_upload_file(link_share: str):
                     aca_artist=row[1],
                     title=row[2],
                     yt_url=row[3],
+                    thumbnail=get_thumbnail(row[3]),
                     is_aca=row[4] == "ja",
                     arng_url=row[5],
                     categories={n: v for n, v in zip(

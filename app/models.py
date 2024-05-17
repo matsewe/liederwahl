@@ -15,6 +15,7 @@ class Song(BaseModel):
     aca_artist: Optional[str]
     title: str
     yt_url: Optional[str]
+    thumbnail: Optional[str]
     is_aca: bool
     arng_url: Optional[str]
     categories: dict[str, bool]

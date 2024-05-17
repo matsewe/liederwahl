@@ -10,6 +10,7 @@ class SqlSong(Base):
     aca_artist = Column(String)
     title = Column(String)
     yt_url = Column(String)
+    thumbnail = Column(String)
     is_aca = Column(Boolean)
     arng_url = Column(String)
     

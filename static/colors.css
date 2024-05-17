@@ -1,90 +1,90 @@
 .cat-1 { 
- background-color: #1f77b4; 
+ --main-color: #1f77b4; 
 }
 .cat-2 { 
- background-color: #ff7f0e; 
+ --main-color: #ff7f0e; 
 }
 .cat-3 { 
- background-color: #2ca02c; 
+ --main-color: #2ca02c; 
 }
 .cat-4 { 
- background-color: #d62728; 
+ --main-color: #d62728; 
 }
 .cat-5 { 
- background-color: #9467bd; 
+ --main-color: #9467bd; 
 }
 .cat-6 { 
- background-color: #8c564b; 
+ --main-color: #8c564b; 
 }
 .cat-7 { 
- background-color: #e377c2; 
+ --main-color: #e377c2; 
 }
 .cat-8 { 
- background-color: #7f7f7f; 
+ --main-color: #7f7f7f; 
 }
 .cat-9 { 
- background-color: #bcbd22; 
+ --main-color: #bcbd22; 
 }
 .cat-10 { 
- background-color: #17becf; 
+ --main-color: #17becf; 
 }
 .cat-11 { 
- background-color: #a1c9f4; 
+ --main-color: #a1c9f4; 
 }
 .cat-12 { 
- background-color: #ffb482; 
+ --main-color: #ffb482; 
 }
 .cat-13 { 
- background-color: #8de5a1; 
+ --main-color: #8de5a1; 
 }
 .cat-14 { 
- background-color: #ff9f9b; 
+ --main-color: #ff9f9b; 
 }
 .cat-15 { 
- background-color: #d0bbff; 
+ --main-color: #d0bbff; 
 }
 .cat-16 { 
- background-color: #debb9b; 
+ --main-color: #debb9b; 
 }
 .cat-17 { 
- background-color: #fab0e4; 
+ --main-color: #fab0e4; 
 }
 .cat-18 { 
- background-color: #cfcfcf; 
+ --main-color: #cfcfcf; 
 }
 .cat-19 { 
- background-color: #fffea3; 
+ --main-color: #fffea3; 
 }
 .cat-20 { 
- background-color: #b9f2f0; 
+ --main-color: #b9f2f0; 
 }
 .cat-21 { 
- background-color: #001c7f; 
+ --main-color: #001c7f; 
 }
 .cat-22 { 
- background-color: #b1400d; 
+ --main-color: #b1400d; 
 }
 .cat-23 { 
- background-color: #12711c; 
+ --main-color: #12711c; 
 }
 .cat-24 { 
- background-color: #8c0800; 
+ --main-color: #8c0800; 
 }
 .cat-25 { 
- background-color: #591e71; 
+ --main-color: #591e71; 
 }
 .cat-26 { 
- background-color: #592f0d; 
+ --main-color: #592f0d; 
 }
 .cat-27 { 
- background-color: #a23582; 
+ --main-color: #a23582; 
 }
 .cat-28 { 
- background-color: #3c3c3c; 
+ --main-color: #3c3c3c; 
 }
 .cat-29 { 
- background-color: #b8850a; 
+ --main-color: #b8850a; 
 }
 .cat-30 { 
- background-color: #006374; 
+ --main-color: #006374; 
 }
