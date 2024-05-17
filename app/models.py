@@ -1,6 +1,7 @@
 from typing import Optional, List
 import gspread
 from pydantic import BaseModel
+from enum import Enum
 
 class GoogleFile(BaseModel):
     file_id: str
@@ -11,7 +12,14 @@ class Genre(BaseModel):
     genre_name: str
 
 class Song(BaseModel):
-    song_id: Optional[int]
-    song_title: str
-    url: str
-    genres: List[Genre]
+    id: int
+    og_artist: Optional[str]
+    aca_artist: Optional[str]
+    title: str
+    yt_url: Optional[str]
+    is_aca: bool
+    arng_url: Optional[str]
+    categories: dict[str, bool]
+    main_category: str
+    singable: bool
+    vote: Optional[int]
