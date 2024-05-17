@@ -1,9 +1,7 @@
-from fastapi import APIRouter, HTTPException, Security
+from fastapi import APIRouter
 from app.models import Song
 from app.sql_models import SqlSong, SqlVote
 from app.dependencies import session
-from app.routers.user import get_current_user, User
-from typing import Annotated
 
 router = APIRouter(
     prefix="/songs",

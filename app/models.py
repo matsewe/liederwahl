@@ -1,7 +1,5 @@
-from typing import Optional, List
-import gspread
+from typing import Optional
 from pydantic import BaseModel
-from enum import Enum
 
 class GoogleFile(BaseModel):
     file_id: str
