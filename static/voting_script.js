@@ -143,6 +143,7 @@ $(document).ready(function () {
                 "no_selected": (song.vote == -1) ? "selected" : "",
                 "neutral_selected": (song.vote == 0) ? "selected" : "",
                 "yes_selected": (song.vote == 1) ? "selected" : "",
+                "play_button": (song.yt_id || song.spfy_id) ? "play" : "open",
                 "categories": cats
             })).join('')
 
@@ -175,22 +176,30 @@ window.onSpotifyIframeApiReady = (IFrameAPI) => {
     IFrameAPI.createController(element, options, callback);
   };
 
+function stop() {
+    $("#song-" + is_playing + " .cover-container .overlay img").attr("src", "/static/play.svg");
 
-function play(id) {
     $("#yt-player").css("display", "none");
     $("#spotify-player").css("display", "none");
     $("#close-player").css("display", "none");
     $("#yt-player").html("");
     spotify_embed_controller.pause();
+    is_playing = -1;
+}
 
+function play(id) {
     if (is_playing == id) {
-        is_playing = -1;
+        stop();
     } else {
+        stop();
+
         is_playing = id;
 
+        $("#song-" + id + " .cover-container .overlay img").attr("src", "/static/stop.svg");
+
         song = all_songs[id];
-        yt_id = song.yt_url.split('v=')[1]
-        spotify_id = song.yt_url.split('/track/')[1]
+        yt_id = song.yt_id
+        spotify_id = song.spfy_id
 
         if (yt_id) {
             $("#yt-player").css("display", "flex");
@@ -205,15 +214,9 @@ function play(id) {
             spotify_embed_controller.play();
         }
         else {
-            $("#yt-player").css("display", "none");
-            $("#spotify-player").css("display", "none");
-            $("#yt-player").html("");
-            spotify_embed_controller.pause();
-            window.open(song.yt_url, '_blank').focus();
+            stop();
+            $("#song-" + id + " .cover-container .overlay img").attr("src", "/static/open.svg");
+            window.open(song.url, '_blank').focus();
         }
     }
 }
-
-//<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/2DS7lDZNFM7safSGNm8vd4?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-
-// https://open.spotify.com/intl-de/track/2DS7lDZNFM7safSGNm8vd4

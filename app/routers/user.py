@@ -6,13 +6,26 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm, Se
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel, ValidationError
+import os
 
-from app.secrets import SECRET_KEY, fake_users_db
+#from app.secrets import SECRET_KEY, fake_users_db
 # to get a string like this run:
 # openssl rand -hex 32
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 31
+SECRET_KEY = os.environ['SECRET_KEY']
+
+fake_users_db = {
+    "admin": {
+        "username": "admin",
+        "email": "admin@example.com",
+        "hashed_password": os.environ["ADMIN_PWD"],
+        "disabled": False,
+        "scopes" : ["admin", "public"]
+    }
+}
+
 
 
 class Token(BaseModel):
@@ -28,7 +41,7 @@ class TokenData(BaseModel):
 class User(BaseModel):
     username: str
     email: str | None = None
-    full_name: str | None = None
+    #full_name: str | None = None
     disabled: bool | None = None
 
 
@@ -53,6 +66,7 @@ router = APIRouter(
 
 
 def verify_password(plain_password, hashed_password):
+    print(get_password_hash(plain_password))
     return pwd_context.verify(plain_password, hashed_password)
 
 

@@ -13,8 +13,10 @@ class Song(BaseModel):
     id: int
     og_artist: Optional[str]
     aca_artist: Optional[str]
-    title: str
-    yt_url: Optional[str]
+    title: Optional[str]
+    url: Optional[str]
+    yt_id: Optional[str]
+    spfy_id: Optional[str]
     thumbnail: Optional[str]
     is_aca: bool
     arng_url: Optional[str]

@@ -1,52 +1,164 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Liederwahl</title>
-        <link rel="stylesheet" type="text/css" href="/static/colors.css">
-        <link rel="stylesheet" type="text/css" href="/static/site.css">
-        <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-        <script src="/static/voting_script.js"></script>
-        <script type="text/template" data-template="song">
-            <div class="song" id="song-${id}">
-                <div class="cover-container">
-                    <img src="${cover_image}" class="cover">
-                    <div class="overlay" onclick="play(${id})"><img src="/static/play.svg"></div>
-                </div>
-                <div class="song-title">${title}</div>
-                <div class="song-artist">${artist}</div>
-                <div class="categories" id="container">
-                    ${categories}<span style="--main-color: transparent;">&nbsp;</span>
-                </div>
-                <div class="vote-buttons">
-                    <div class="button button-no ${no_selected}" onmousedown="vote(${id}, -1); return false;" onclick="return false;"><img src="/static/no.svg"></div><div class="button button-neutral ${neutral_selected}" onmousedown="vote(${id}, 0)"><img src="/static/neutral.svg"></div><div class="button button-yes ${yes_selected}" onmousedown="vote(${id}, 1)"><img src="/static/yes.svg"></div>
-                </div>
-                <div class="clear"></div>
-            </div>  
-        </script>
 
-    </head>
+<head>
+    <title>Liederwahl</title>
 
-    <body>
-        <div id="songs"></div>
-        <div id="spotify-player"><div id="spotify-embed"></div></div>
-        <div id="yt-player"></div>
-        <div id="close-player"><img src="/static/no.svg"></div>
-    
-        <!--<div class="song">
+    <link rel="apple-touch-icon" href="https://choriosity.de/assets/images/apple-touch-icon.png" type="image/png">
+    <link rel="alternate icon" href="https://choriosity.de/assets/images/favicon.png" type="image/png">
+    <link rel="shortcut icon" href="https://choriosity.de/assets/images/favicon.svg" type="image/svg+xml">
+
+    <link rel="stylesheet" type="text/css" href="/static/colors.css">
+    <link rel="stylesheet" type="text/css" href="/static/site.css">
+    <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript">
+        var spotify_embed_controller;
+
+        window.onSpotifyIframeApiReady = (IFrameAPI) => {
+            const element = document.getElementById('spotify-embed');
+            const options = {
+                width: '640',
+                height: '360'
+            };
+            const callback = (EmbedController) => {
+                spotify_embed_controller = EmbedController;
+            };
+            IFrameAPI.createController(element, options, callback);
+        };
+
+        var is_playing = -1;
+
+        function stop() {
+            $("#song-" + is_playing + " .cover-container .overlay img").attr("src", "/static/play.svg");
+
+            $("#yt-player").css("display", "none");
+            $("#spotify-player").css("display", "none");
+            $("#close-player").css("display", "none");
+            $("#yt-player").html("");
+            spotify_embed_controller.pause();
+            is_playing = -1;
+        }
+
+        function playYt(song_id, yt_id) {
+            if (is_playing == song_id) {
+                stop();
+            } else {
+                stop();
+
+                is_playing = song_id;
+
+                $("#song-" + song_id + " .cover-container .overlay img").attr("src", "/static/stop.svg");
+
+                $("#yt-player").css("display", "flex");
+                $("#close-player").css("display", "block");
+                iframe_code = '<iframe src="https://www.youtube.com/embed/' + yt_id + '?autoplay=1" title="" width="640" height="360" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"  allowFullScreen></iframe>';
+                $("#yt-player").html(iframe_code);
+            }
+        }
+
+        function playSpfy(song_id, spfy_id) {
+            if (is_playing == song_id) {
+                stop();
+            } else {
+                stop();
+
+                is_playing = song_id;
+
+                $("#song-" + song_id + " .cover-container .overlay img").attr("src", "/static/stop.svg");
+
+                $("#spotify-player").css("display", "flex");
+                $("#close-player").css("display", "block");
+                spotify_embed_controller.loadUri("spotify:track:" + spfy_id);
+                spotify_embed_controller.play();
+            }
+        }
+
+        function openUrl(song_id, url) {
+            stop();
+            window.open(url, '_blank').focus();
+        }
+
+        function vote(song_id, vote) {
+            var session_id = "{{ session_id }}";
+
+            no_button = $("#song-" + song_id).find(".button-no")
+            yes_button = $("#song-" + song_id).find(".button-yes")
+            neutral_button = $("#song-" + song_id).find(".button-neutral")
+
+            no_button.removeClass("selected")
+            yes_button.removeClass("selected")
+            neutral_button.removeClass("selected")
+
+            switch (vote) {
+                case 0:
+                    neutral_button.addClass("selected")
+                    break;
+                case 1:
+                    yes_button.addClass("selected")
+                    break;
+                case -1:
+                    no_button.addClass("selected")
+                default:
+                    break;
+            }
+
+            $.ajax({
+                url: "/songs/" + song_id + "/vote?" + $.param({ user_id: session_id, vote: vote }),
+                method: "POST"
+            })
+        }
+    </script>
+</head>
+
+<body>
+    <h1 style="--main-color: #888888; ">Hallo :)</h1>
+    <div class="text">Du kannst die Liederwahl jederzeit unterbrechen und zu einem späteren Zeitpunkt weitermachen.
+    </div>
+    <div id="songs">
+        {% for main_category, songs in songs_by_category.items() %}
+        <h1 class="cat-{{ all_categories[main_category] }}">{{ main_category }}</h1>
+        {% for song in songs -%}
+        <div class="song" id="song-{{ song.id }}">
             <div class="cover-container">
-                <img src="{{ url_for('static', path='/cover.jpg') }}" class="cover">
-                <div class="overlay"><img src="{{ url_for('static', path='/play.svg') }}"></div>
+                <img src="{{ song.thumbnail }}" class="cover">
+                <div class="overlay"
+                    onclick="{% if song.yt_id %}playYt({{ song.id }}, '{{ song.yt_id }}'){% else %}{% if song.spfy_id %}playSpfy({{ song.id }}, '{{ song.spfy_id }}'){% else %}openUrl({{ song.id }}, '{{ song.url }}'){% endif %}{% endif %}">
+                    <img src="/static/{% if song.yt_id or song.spfy_id %}play{% else %}open{% endif %}.svg">
+                </div>
             </div>
-            <div class="song-data">VoicePlay: In The Air Tonight</div>
-            <div class="categories" id="container">
-                <span class="cat-1">Ballade</span><span class="cat-2">&lt; 90er Remake</span><span class="cat-3">Something else </span><span class="cat-4">Something else </span>
+            <div class="song-title">{{ song.title }}</div>
+            <div class="song-artist">{% if song.og_artist %}{{ song.og_artist }}{% if song.aca_artist and
+                song.aca_artist != song.og_artist %} / {{ song.aca_artist
+                }}{% endif %}{% else %}{{ song.aca_artist }}{% endif %}</div>
+            <div class="categories" id="container">{% for category_name, is_in_category in song.categories.items() %}{%
+                if is_in_category %}<span class="cat-{{ all_categories[category_name] }}">{{ category_name }}</span>{%
+                endif %}{% endfor %}<span style="--main-color: transparent;">&nbsp;</span>
             </div>
             <div class="vote-buttons">
-                <div class="button button-no"><img src="{{ url_for('static', path='/no.svg') }}"></div><div class="button button-neutral"><img src="{{ url_for('static', path='/neutral.svg') }}"></div><div class="button button-yes selected"><img src="{{ url_for('static', path='/yes.svg') }}"></div>
+                <div class="button button-no {% if song.vote == -1 %}selected{% endif %}"
+                    onmousedown="vote({{ song.id }}, -1); return false;" onclick="return false;"><img
+                        src="/static/no.svg">
+                </div>
+                <div class="button button-neutral {% if song.vote == 0 %}selected{% endif %}"
+                    onmousedown="vote({{ song.id }}, 0); return false;" onclick="return false;"><img
+                        src="/static/neutral.svg"></div>
+                <div class="button button-yes {% if song.vote == 1 %}selected{% endif %}"
+                    onmousedown="vote({{ song.id }}, 1); return false;" onclick="return false;"><img
+                        src="/static/yes.svg">
+                </div>
             </div>
             <div class="clear"></div>
-        </div>-->      
-    </body>
-</html>
+        </div>
+        {% endfor %}
+        {% endfor %}
 
+    </div>
+    <div id="spotify-player">
+        <div id="spotify-embed"></div>
+    </div>
+    <div id="yt-player"></div>
+    <div id="close-player" onclick="stop(); return false;"><img src="/static/no.svg"></div>
+</body>
+
+</html>

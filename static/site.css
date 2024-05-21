@@ -2,15 +2,29 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    font-family: sans-serif;
+}
+
+.vote-buttons,
+.cover-container,
+.categories {
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
 }
 
+
 @media only screen and (min-resolution: 200dpi) {
     body {
         font-size: 3.2vmin;
     }
+}
+
+
+.text {
+    padding: 0.3em;
+    margin-bottom: 0.5em;
+    display: inline-block;
 }
 
 .clear {
@@ -101,11 +115,12 @@
 .button {
     height: 1.5em;
     width: 3em;
-    display: inline-block;
     text-align: center;
     vertical-align: middle;
     font-size: 1.5em;
     position: relative;
+    float: left;
+    clear: none;
 }
 
 .button img {
@@ -202,6 +217,8 @@
     font-size: 0.7em;
 }
 
+
+
 h1 {
     font-family: sans-serif;
     padding: 0.1em;
@@ -224,20 +241,21 @@ h1 {
 }
 
 #spotify-player {
-    bottom: 0.2em;
-    background-color: blue;
+    bottom: 0.4em;
 }
 
 #close-player {
-    position: absolute;
-    bottom: 320px;
-    right: 0.5em;
-    background-color: rgba(255,255,255,0.9);
+    position: fixed;
+    bottom: calc(360px + 0.2em - 3em);
+    right: 0.7em;
+    background-color: rgba(255, 255, 255, 1);
     width: 3em;
     height: 3em;
     border-radius: 1.5em;
     display: none;
+    cursor: pointer;
 }
+
 #close-player img {
     position: relative;
     left: 50%;

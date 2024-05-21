@@ -9,13 +9,24 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+async def songify(s, votes):
+    return Song(**s.__dict__, vote=votes.get(s.id, None))
+
 @router.get("/")
 async def get_songs(user_id : str = "") -> list[Song]:
     sqlsongs = session.query(SqlSong).filter(SqlSong.singable == True).all()
     votes = session.query(SqlVote).filter(SqlVote.user_id == user_id).all()
     votes = {v.song_id : v.vote for v in votes}
 
-    return [Song(**s.__dict__, vote=votes.get(s.id, None)) for s in sqlsongs] # type: ignore
+    songs = []
+    for s in sqlsongs:
+        try:
+            songs.append(Song(**s.__dict__, vote=votes.get(s.id, None)))
+        except:
+            print(s.__dict__)
+            pass
+    return songs
+    #return [Song(**s.__dict__, vote=votes.get(s.id, None)) for s in sqlsongs] # type: ignore
 
 @router.post("/{song_id}/vote")
 async def vote(song_id : str, user_id : str, vote : int):
