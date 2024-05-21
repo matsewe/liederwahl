@@ -8,7 +8,6 @@
     <link rel="alternate icon" href="https://choriosity.de/assets/images/favicon.png" type="image/png">
     <link rel="shortcut icon" href="https://choriosity.de/assets/images/favicon.svg" type="image/svg+xml">
 
-    <link rel="stylesheet" type="text/css" href="/static/colors.css">
     <link rel="stylesheet" type="text/css" href="/static/site.css">
     <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
@@ -117,7 +116,7 @@
     </div>
     <div id="songs">
         {% for main_category, songs in songs_by_category.items() %}
-        <h1 class="cat-{{ all_categories[main_category] }}">{{ main_category }}</h1>
+        <h1 style="--hue: {{ all_categories[main_category] / all_categories|length }};">{{ main_category }}</h1>
         {% for song in songs -%}
         <div class="song" id="song-{{ song.id }}">
             <div class="cover-container">
@@ -132,7 +131,7 @@
                 song.aca_artist != song.og_artist %} / {{ song.aca_artist
                 }}{% endif %}{% else %}{{ song.aca_artist }}{% endif %}</div>
             <div class="categories" id="container">{% for category_name, is_in_category in song.categories.items() %}{%
-                if is_in_category %}<span class="cat-{{ all_categories[category_name] }}">{{ category_name }}</span>{%
+                if is_in_category %}<span style="--hue: {{ all_categories[category_name] / all_categories|length }};">{{ category_name }}</span>{%
                 endif %}{% endfor %}<span style="--main-color: transparent;">&nbsp;</span>
             </div>
             <div class="vote-buttons">
