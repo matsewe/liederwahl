@@ -79,7 +79,7 @@
         }
 
         function vote(song_id, vote) {
-            var session_id = "{{ session_id }}";
+            const session_id = "{{ session_id }}";
 
             no_button = $("#song-" + song_id).find(".button-no")
             yes_button = $("#song-" + song_id).find(".button-yes")
@@ -111,7 +111,7 @@
 </head>
 
 <body>
-    <h1 style="--main-color: #888888; ">Hallo :)</h1>
+    <h1>Hallo :)</h1>
     <div class="text">Du kannst die Liederwahl jederzeit unterbrechen und zu einem späteren Zeitpunkt weitermachen.
     </div>
     <div id="songs">
@@ -131,7 +131,8 @@
                 song.aca_artist != song.og_artist %} / {{ song.aca_artist
                 }}{% endif %}{% else %}{{ song.aca_artist }}{% endif %}</div>
             <div class="categories" id="container">{% for category_name, is_in_category in song.categories.items() %}{%
-                if is_in_category %}<span style="--hue: {{ all_categories[category_name] / all_categories|length }};">{{ category_name }}</span>{%
+                if is_in_category %}<span style="--hue: {{ all_categories[category_name] / all_categories|length }};">{{
+                    category_name }}</span>{%
                 endif %}{% endfor %}<span style="--main-color: transparent;">&nbsp;</span>
             </div>
             <div class="vote-buttons">
@@ -151,7 +152,6 @@
         </div>
         {% endfor %}
         {% endfor %}
-
     </div>
     <div id="spotify-player">
         <div id="spotify-embed"></div>

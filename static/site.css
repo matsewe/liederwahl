@@ -23,7 +23,7 @@
 
 .text {
     padding: 0.3em;
-    margin-bottom: 0.5em;
+    margin-bottom: 0.7em;
     display: inline-block;
 }
 
@@ -225,8 +225,16 @@ h1 {
     padding-left: 0.2em;
     margin-bottom: 1rem;
     font-size: 1.5em;
-    background-color: hsl(calc(var(--hue) * 360), 100%, 70%); /*color-mix(in srgb, var(--main-color) 60%, transparent);*/
+}
+
+#songs h1 {
+    background-color: color-mix(in srgb, hsl(calc(var(--hue) * 360), 100%, 40%) 50%, transparent);
     border-bottom: 0.3rem solid hsl(calc(var(--hue) * 360), 100%, 40%);
+}
+
+body > h1 {
+    background-color: color-mix(in srgb, hsl(0, 0%, 40%) 50%, transparent);
+    border-bottom: 0.3rem solid hsl(0, 0%, 40%);
 }
 
 #yt-player,
