@@ -14,7 +14,13 @@
 }
 
 
-@media only screen and (min-resolution: 200dpi) {
+@media only screen and (min-resolution: 2dppx) {
+    body {
+        font-size: 3.2vmin;
+    }
+}
+
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
     body {
         font-size: 3.2vmin;
     }
@@ -199,7 +205,8 @@
     color: white;
     max-width: 10em;
     overflow: clip;
-    background-color: hsl(calc(var(--hue) * 360), 100%, 40%); /*color-mix(in srgb, var(--main-color) 60%, transparent);*/
+    background-color: hsl(calc(var(--hue) * 360), 100%, 40%);
+    /*color-mix(in srgb, var(--main-color) 60%, transparent);*/
 }
 
 .vote-buttons {
@@ -232,7 +239,7 @@ h1 {
     border-bottom: 0.3rem solid hsl(calc(var(--hue) * 360), 100%, 40%);
 }
 
-body > h1 {
+body>h1 {
     background-color: color-mix(in srgb, hsl(0, 0%, 40%) 50%, transparent);
     border-bottom: 0.3rem solid hsl(0, 0%, 40%);
 }

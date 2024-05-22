@@ -1,39 +1,29 @@
-from fastapi import APIRouter
-from app.models import Song
-from app.sql_models import SqlSong, SqlVote
-from app.dependencies import session
+from typing import Annotated
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+
+import app.models as models
+from app.database import get_db
+from app.schemas import Song
+from app.crud import get_songs_and_vote_for_user, create_or_update_vote, get_all_songs_and_votes
 
 router = APIRouter(
     prefix="/songs",
-    #dependencies=[Security(get_current_user, scopes=["public"])],
+    # dependencies=[Security(get_current_user, scopes=["public"])],
     responses={404: {"description": "Not found"}},
 )
 
-async def songify(s, votes):
-    return Song(**s.__dict__, vote=votes.get(s.id, None))
 
 @router.get("/")
-async def get_songs(user_id : str = "") -> list[Song]:
-    sqlsongs = session.query(SqlSong).filter(SqlSong.singable == True).all()
-    votes = session.query(SqlVote).filter(SqlVote.user_id == user_id).all()
-    votes = {v.song_id : v.vote for v in votes}
+async def get_songs(user_id: str = "", db: Annotated[Session, Depends(get_db)] = None) -> list[Song]:
+    return [Song(**s.__dict__, vote=v) for s, v in get_songs_and_vote_for_user(db, user_id)]
 
-    songs = []
-    for s in sqlsongs:
-        try:
-            songs.append(Song(**s.__dict__, vote=votes.get(s.id, None)))
-        except:
-            print(s.__dict__)
-            pass
-    return songs
-    #return [Song(**s.__dict__, vote=votes.get(s.id, None)) for s in sqlsongs] # type: ignore
 
 @router.post("/{song_id}/vote")
-async def vote(song_id : str, user_id : str, vote : int):
-    vote_entry = session.query(SqlVote).filter((SqlVote.user_id == user_id) & (SqlVote.song_id == song_id)).first()
-    if vote_entry:
-        vote_entry.vote = str(vote) # type: ignore
-    else:
-        vote_entry = SqlVote(song_id=song_id, user_id=user_id, vote=vote)
-        session.add(vote_entry)
-    session.commit()
+async def vote(song_id: str, user_id: str, vote: int, db: Annotated[Session, Depends(get_db)]):
+    create_or_update_vote(db, song_id, user_id, vote)
+
+
+@router.get("/evaluation")
+async def get_evaluation(db: Annotated[Session, Depends(get_db)] = None) -> dict[int, dict[int, int]]:
+    return get_all_songs_and_votes(db)

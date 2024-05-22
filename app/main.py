@@ -1,11 +1,13 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from app.routers import admin, user, songs
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from app.dependencies import engine
-from app.sql_models import Base
-from app.routers.songs import get_songs
+from app.database import engine, Base, get_db
+from app.crud import get_songs_and_vote_for_user
+from sqlalchemy.orm import Session
+from typing import Annotated
+from app.schemas import Song
 
 Base.metadata.create_all(engine)
 
@@ -20,13 +22,14 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 @app.get("/", response_class=HTMLResponse)
-async def root(request: Request, session_id : str = ""):
+async def root(request: Request, session_id : str = "", db: Annotated[Session, Depends(get_db)] = None):
     if session_id == "":
         return templates.TemplateResponse(
             request=request, name="landing.html"
         )
     else:
-        songs = await get_songs(session_id)
+        songs = [Song(**s.__dict__, vote=v) for s, v in get_songs_and_vote_for_user(db, session_id)]
+
         songs_by_category = {}
         all_categories = set()
         for song in songs:

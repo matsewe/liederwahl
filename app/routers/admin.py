@@ -1,17 +1,14 @@
-from fastapi import APIRouter, Security
-from app.sql_models import SqlSong
-from app.dependencies import session
-from app.dependencies import engine
-from app.routers.user import get_current_user
 import pandas as pd
 import numpy as np
 import re
 import requests
 import os
-from app.sql_models import Base
+from fastapi import APIRouter, Security, Depends
+from sqlalchemy.orm import Session
 
-
-
+from app.database import get_db, engine, Base
+from app.routers.user import get_current_user
+from app.crud import create_song
 
 router = APIRouter(
     prefix="/admin",
@@ -28,10 +25,11 @@ def get_main_category(categories) -> int:
     else:
         return np.argmax(categories != None, axis=0)
 
+
 def get_youtube_id(url):
     if url is None:
         return None
-    
+
     youtube_regex = (
         r'(https?://)?(www\.)?'
         '(youtube|youtu|youtube-nocookie)\.(com|be)/'
@@ -43,10 +41,11 @@ def get_youtube_id(url):
 
     return None
 
+
 def get_thumbnail(url):
     if url is None:
         return "/static/cover.jpg"
-    
+
     m = get_youtube_id(url)
     if m:
         thumbnail_url = "https://img.youtube.com/vi/" + m + "/mqdefault.jpg"
@@ -56,6 +55,7 @@ def get_thumbnail(url):
     else:
         return "/static/cover.jpg"
 
+
 def get_spotify_id(url):
     if url is None:
         return None
@@ -64,8 +64,9 @@ def get_spotify_id(url):
     else:
         return None
 
+
 @router.post("/load_list")
-async def create_upload_file():
+async def create_upload_file(db: Session = Depends(get_db)):
 
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
@@ -83,12 +84,13 @@ async def create_upload_file():
         spfy_id = get_spotify_id(row[3])
 
         categories = {n: v for n, v in zip(
-                        category_names, row[6:19] != None)}
-        
+            category_names, row[6:19] != None)}
+
         if not np.any(list(categories.values())):
             continue
 
-        s = SqlSong(og_artist=row[0],
+        create_song(db,
+                    og_artist=row[0],
                     aca_artist=row[1],
                     title=row[2],
                     url=row[3],
@@ -101,6 +103,3 @@ async def create_upload_file():
                     main_category=category_names[get_main_category(row[6:19])],
                     singable=row[19] != "nein"
                     )
-
-        session.add(s)
-        session.commit()
