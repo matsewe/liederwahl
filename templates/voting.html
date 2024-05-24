@@ -10,7 +10,6 @@
 
     <link rel="stylesheet" type="text/css" href="/static/site.css">
     <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
-    <script src="https://www.youtube.com/iframe_api" async></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script type="text/javascript">
         const session_id = "{{ session_id }}";
@@ -29,11 +28,11 @@
             })
         }
 
-        $(window).on("load", activate_session);
+        $( window ).on("load", activate_session);
 
-        $(window).on("beforeunload", deactivate_session);
-        $(window).on("pagehide", deactivate_session);
-        $(document).on('visibilitychange', function () {
+        $( window ).on("beforeunload", deactivate_session);
+        $( window ).on("pagehide", deactivate_session);
+        $(document).on('visibilitychange', function() {
             if (document.visibilityState == 'hidden') {
                 deactivate_session();
             } else {
@@ -55,22 +54,6 @@
             IFrameAPI.createController(element, options, callback);
         };
 
-        var youtube_player;
-
-        function onYouTubeIframeAPIReady() {
-            youtube_player = new YT.Player('youtube-embed', {
-                height: '360',
-                width: '640',
-                playerVars: {
-                    'playsinline': 1
-                },
-                events: {
-                    'onReady': (event) => event.target.playVideo()
-                }
-            });
-        }
-
-
         var is_playing = -1;
 
         function stop() {
@@ -78,11 +61,9 @@
 
             $("#yt-player").css("display", "none");
             $("#spotify-player").css("display", "none");
-            $("#mscs-player").css("display", "none");
             $("#close-player").css("display", "none");
-
+            $("#yt-player").html("");
             spotify_embed_controller.pause();
-            youtube_player.stopVideo();
             is_playing = -1;
         }
 
@@ -98,9 +79,8 @@
 
                 $("#yt-player").css("display", "flex");
                 $("#close-player").css("display", "block");
-
-                youtube_player.loadVideoById(yt_id);
-                // youtube_player.playVideo();
+                iframe_code = '<iframe src="https://www.youtube.com/embed/' + yt_id + '?autoplay=1" title="" width="640" height="360" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"  allowFullScreen></iframe>';
+                $("#yt-player").html(iframe_code);
             }
         }
 
@@ -116,28 +96,14 @@
 
                 $("#spotify-player").css("display", "flex");
                 $("#close-player").css("display", "block");
-
                 spotify_embed_controller.loadUri("spotify:track:" + spfy_id);
                 spotify_embed_controller.play();
             }
         }
 
-        /*function playMscs(song_id, mscs_url) {
-            $("#mscs-player").css("display", "flex");
-            $("#mscs-player").css("display", "block");
-
-            $("#mscs-player").html('<iframe width="640" height="360" src="' + mscs_url + '/embed" frameborder="0" allowfullscreen allow="autoplay; fullscreen" id="mscs-embed"></iframe>');
-        }*/
-        // Autoplay seems to be impossible. Embedding musescore on mobile does not work well.
-
         function openUrl(song_id, url) {
             stop();
             window.open(url, '_blank').focus();
-            /*if (url.includes("musescore")) {
-                playMscs(song_id, url);
-            } else {
-                window.open(url, '_blank').focus();
-            }*/
         }
 
         function vote(song_id, vote) {
@@ -216,11 +182,7 @@
     <div id="spotify-player">
         <div id="spotify-embed"></div>
     </div>
-    <div id="yt-player">
-        <div id="youtube-embed"></div>
-    </div>
-    <div id="mscs-player">
-    </div>
+    <div id="yt-player"></div>
     <div id="close-player" onclick="stop(); return false;"><img src="/static/no.svg"></div>
 </body>
 
