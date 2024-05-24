@@ -245,7 +245,8 @@ body>h1 {
 }
 
 #yt-player,
-#spotify-player {
+#spotify-player,
+#mscs-player {
     position: fixed;
     bottom: 0.5em;
     right: 0.5em;
