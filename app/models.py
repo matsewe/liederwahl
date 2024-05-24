@@ -25,11 +25,20 @@ class Song(Base):
     singable: Mapped[Optional[bool]]
 
 
+class Session(Base):
+    __tablename__ = 'sessions'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    session_name: Mapped[int]
+    active: Mapped[bool]
+    time_created: Mapped[datetime] = mapped_column(server_default=func.now())
+    time_updated: Mapped[Optional[datetime]
+                         ] = mapped_column(onupdate=func.now())
+
 class Vote(Base):
     __tablename__ = 'votes'
     id: Mapped[int] = mapped_column(primary_key=True)
     song_id: Mapped[int] = mapped_column(Integer, ForeignKey("songs.id"))
-    user_id: Mapped[int]
+    session_id: Mapped[int] = mapped_column(Integer, ForeignKey("sessions.id"))
     vote: Mapped[Optional[int]]
     time_created: Mapped[datetime] = mapped_column(server_default=func.now())
     time_updated: Mapped[Optional[datetime]

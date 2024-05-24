@@ -12,6 +12,34 @@
     <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script type="text/javascript">
+        const session_id = "{{ session_id }}";
+
+        function activate_session() {
+            $.ajax({
+                url: "/session/" + session_id,
+                method: "PUT"
+            })
+        }
+
+        function deactivate_session() {
+            $.ajax({
+                url: "/session/" + session_id,
+                method: "DELETE"
+            })
+        }
+
+        $( window ).on("load", activate_session);
+
+        $( window ).on("beforeunload", deactivate_session);
+        $( window ).on("pagehide", deactivate_session);
+        $(document).on('visibilitychange', function() {
+            if (document.visibilityState == 'hidden') {
+                deactivate_session();
+            } else {
+                activate_session()
+            }
+        });
+
         var spotify_embed_controller;
 
         window.onSpotifyIframeApiReady = (IFrameAPI) => {
@@ -79,8 +107,6 @@
         }
 
         function vote(song_id, vote) {
-            const session_id = "{{ session_id }}";
-
             no_button = $("#song-" + song_id).find(".button-no")
             yes_button = $("#song-" + song_id).find(".button-yes")
             neutral_button = $("#song-" + song_id).find(".button-neutral")
@@ -103,7 +129,7 @@
             }
 
             $.ajax({
-                url: "/songs/" + song_id + "/vote?" + $.param({ user_id: session_id, vote: vote }),
+                url: "/songs/" + song_id + "/vote?" + $.param({ session_id: session_id, vote: vote }),
                 method: "POST"
             })
         }

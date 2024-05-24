@@ -1,10 +1,10 @@
 from fastapi import FastAPI, Request, Depends
-from app.routers import admin, user, songs
+from app.routers import admin, user, songs, session
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from app.database import engine, Base, get_db
-from app.crud import get_songs_and_vote_for_user
+from app.crud import get_songs_and_vote_for_session
 from sqlalchemy.orm import Session
 from typing import Annotated
 from app.schemas import Song
@@ -16,6 +16,7 @@ app = FastAPI()
 app.include_router(admin.router)
 app.include_router(user.router)
 app.include_router(songs.router)
+app.include_router(session.router)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -28,7 +29,7 @@ async def root(request: Request, session_id : str = "", db: Annotated[Session, D
             request=request, name="landing.html"
         )
     else:
-        songs = [Song(**s.__dict__, vote=v) for s, v in get_songs_and_vote_for_user(db, session_id)]
+        songs = [Song(**s.__dict__, vote=v) for s, v in get_songs_and_vote_for_session(db, session_id)]
 
         songs_by_category = {}
         all_categories = set()

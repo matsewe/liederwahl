@@ -1,8 +1,11 @@
 import app.models as models
 from sqlalchemy import func
+from sqlalchemy.orm.attributes import flag_modified
 
-def get_songs_and_vote_for_user(db, user_id) -> list[models.Song]:
-    votes = db.query(models.Vote).filter(models.Vote.user_id == user_id).subquery()
+def get_songs_and_vote_for_session(db, session_name) -> list[models.Song]:
+    session_entry = activate_session(db, session_name)
+    
+    votes = db.query(models.Vote).filter(models.Vote.session_id == session_entry.id).subquery()
 
     songs_and_votes = db.query(
         models.Song, votes.c.vote
@@ -58,12 +61,38 @@ def create_song(db,
     db.commit()
 
 
-def create_or_update_vote(db, song_id, user_id, vote):
+def create_or_update_vote(db, song_id, session_name, vote):
+    session_entry = activate_session(db, session_name)
+
     vote_entry = db.query(models.Vote).filter(
-        (models.Vote.user_id == user_id) & (models.Vote.song_id == song_id)).first()
+        (models.Vote.session_id == session_entry.id) & (models.Vote.song_id == song_id)).first()
     if vote_entry:
         vote_entry.vote = str(vote)  # type: ignore
     else:
-        vote_entry = models.Vote(song_id=song_id, user_id=user_id, vote=vote)
+        vote_entry = models.Vote(song_id=song_id, session_id=session_entry.id, vote=vote)
         db.add(vote_entry)
+    db.commit()
+
+
+def activate_session(db, session_name):
+    session_entry = db.query(models.Session).filter(
+        (models.Session.session_name == session_name)).first()
+    if session_entry:
+        session_entry.active = True
+    else:
+        session_entry = models.Session(session_name=session_name, active=True)
+        db.add(session_entry)
+    flag_modified(session_entry, "active")
+    db.commit()
+
+    return session_entry
+
+def deactivate_session(db, session_name):
+    session_entry = db.query(models.Session).filter(
+        (models.Session.session_name == session_name)).first()
+    if session_entry:
+        session_entry.active = False
+    else:
+        session_entry = models.Session(session_name=session_name, active=False)
+        db.add(session_entry)
     db.commit()
