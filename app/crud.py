@@ -2,10 +2,12 @@ import app.models as models
 from sqlalchemy import func
 from sqlalchemy.orm.attributes import flag_modified
 
+
 def get_songs_and_vote_for_session(db, session_name) -> list[models.Song]:
     session_entry = activate_session(db, session_name)
-    
-    votes = db.query(models.Vote).filter(models.Vote.session_id == session_entry.id).subquery()
+
+    votes = db.query(models.Vote).filter(
+        models.Vote.session_id == session_entry.id).subquery()
 
     songs_and_votes = db.query(
         models.Song, votes.c.vote
@@ -17,16 +19,18 @@ def get_songs_and_vote_for_session(db, session_name) -> list[models.Song]:
 
 
 def get_all_songs_and_votes(db) -> dict[int, dict[int, int]]:
-    _v = db.query(models.Vote.song_id, models.Vote.vote, func.count(models.Vote.song_id)).group_by(models.Vote.song_id, models.Vote.vote).all()
+    _v = db.query(models.Vote.song_id, models.Vote.vote, func.count(
+        models.Vote.song_id)).group_by(models.Vote.song_id, models.Vote.vote).all()
 
     votes = {}
 
     for v in _v:
         if v[0] not in votes:
-            votes[v[0]] = {-1 : 0, 0 : 0, 1 : 0}
+            votes[v[0]] = {-1: 0, 0: 0, 1: 0}
         votes[v[0]][v[1]] = v[2]
 
     return votes
+
 
 def create_song(db,
                 og_artist,
@@ -37,6 +41,7 @@ def create_song(db,
                 yt_id,
                 spfy_id,
                 thumbnail,
+                is_current,
                 is_aca,
                 arng_url,
                 categories,
@@ -51,6 +56,7 @@ def create_song(db,
                     yt_id=yt_id,
                     spfy_id=spfy_id,
                     thumbnail=thumbnail,
+                    is_current=is_current,
                     is_aca=is_aca,
                     arng_url=arng_url,
                     categories=categories,
@@ -69,7 +75,8 @@ def create_or_update_vote(db, song_id, session_name, vote):
     if vote_entry:
         vote_entry.vote = str(vote)  # type: ignore
     else:
-        vote_entry = models.Vote(song_id=song_id, session_id=session_entry.id, vote=vote)
+        vote_entry = models.Vote(
+            song_id=song_id, session_id=session_entry.id, vote=vote)
         db.add(vote_entry)
     db.commit()
 
@@ -86,6 +93,7 @@ def activate_session(db, session_name):
     db.commit()
 
     return session_entry
+
 
 def deactivate_session(db, session_name):
     session_entry = db.query(models.Session).filter(

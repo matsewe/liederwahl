@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Liederwahl</title>
+    <title>Choriosity Liederwahl</title>
 
     <link rel="apple-touch-icon" href="https://choriosity.de/assets/images/apple-touch-icon.png" type="image/png">
     <link rel="alternate icon" href="https://choriosity.de/assets/images/favicon.png" type="image/png">
@@ -31,6 +31,7 @@
         $(window).on("load", activate_session);
 
         $(window).on("beforeunload", deactivate_session);
+        $(window).on("unload", deactivate_session);
         $(window).on("pagehide", deactivate_session);
         $(document).on('visibilitychange', function () {
             if (document.visibilityState == 'hidden') {

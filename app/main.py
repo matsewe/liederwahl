@@ -39,8 +39,13 @@ async def vote(request: Request, session_id: str, db: Annotated[Session, Depends
     all_categories = set()
 
     wildcard_songs = []
+    current_songs = []
 
     for song in songs:
+        if song.is_current:
+            current_songs.append(song)
+            continue
+
         if not song.is_aca:
             wildcard_songs.append(song)
             continue
@@ -51,11 +56,13 @@ async def vote(request: Request, session_id: str, db: Annotated[Session, Depends
         all_categories.update(song.categories.keys())
 
     songs_by_category["Wildcard (nicht a cappella)"] = wildcard_songs
+    songs_by_category["Aktuelles Programm"] = current_songs
 
     all_categories = list(all_categories)
     all_categories.sort()
 
     all_categories.append("Wildcard (nicht a cappella)")
+    all_categories.append("Aktuelles Programm")
 
     print(all_categories)
 

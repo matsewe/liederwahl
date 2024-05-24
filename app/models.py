@@ -18,6 +18,7 @@ class Song(Base):
     yt_id: Mapped[Optional[str]]
     spfy_id: Mapped[Optional[str]]
     thumbnail: Mapped[Optional[str]]
+    is_current: Mapped[Optional[bool]]
     is_aca: Mapped[Optional[bool]]
     arng_url: Mapped[Optional[str]]
     categories: Mapped[Optional[dict[str, bool]]]

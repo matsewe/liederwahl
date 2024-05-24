@@ -11,6 +11,7 @@ class Song(BaseModel):
     yt_id: Optional[str]
     spfy_id: Optional[str]
     thumbnail: Optional[str]
+    is_current: Optional[bool]
     is_aca: Optional[bool]
     arng_url: Optional[str]
     categories: Optional[dict[str, bool]]

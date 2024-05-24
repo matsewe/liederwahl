@@ -75,7 +75,7 @@ async def create_upload_file(db: Session = Depends(get_db)):
     song_list = song_list.replace({np.nan: None})
     song_list = song_list.replace({"n/a": None})
 
-    category_names = list(song_list.iloc[0][7:16])
+    category_names = list(song_list.iloc[0][8:17])
 
     for i, row in song_list[1:].iterrows():
         row = np.array(row)
@@ -84,9 +84,9 @@ async def create_upload_file(db: Session = Depends(get_db)):
         spfy_id = get_spotify_id(row[3])
 
         categories = {n: v for n, v in zip(
-            category_names, row[7:16] != None)}
+            category_names, row[8:17] != None)}
 
-        if not np.any(list(categories.values())):
+        if (not np.any(list(categories.values()))) and (row[5] != "ja"):
             continue
 
         create_song(db,
@@ -98,9 +98,10 @@ async def create_upload_file(db: Session = Depends(get_db)):
                     yt_id=yt_id,
                     spfy_id=spfy_id,
                     thumbnail=get_thumbnail(row[3]),
-                    is_aca=row[5] == "ja",
-                    arng_url=row[6],
+                    is_current=row[5] == "ja",
+                    is_aca=row[6] == "ja",
+                    arng_url=row[7],
                     categories=categories,
-                    main_category=category_names[get_main_category(row[7:16])],
-                    singable=row[16] != "nein"
+                    main_category=category_names[get_main_category(row[8:17])],
+                    singable=row[17] != "nein"
                     )
