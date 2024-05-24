@@ -1,15 +1,28 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Liederwahl</title>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-        <script src="/static/landing_script.js"></script>
-    </head>
 
-    <body>
-        <div>
-            <p><a href="" class="vote-from-existing">Abstimmen</a></p>
-            <!--<p>Fange eine neue Abstimmung an<a href="">Abstimmen</a></p>-->
-        </div>
-    </body>
+<head>
+    <title>Liederwahl</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var s_id = localStorage.getItem('session_id')
+            
+            if (s_id === null) {
+                s_id = window.crypto.randomUUID();
+                localStorage.setItem('session_id', s_id)
+            }
+
+            $('.vote').attr('href', 'vote?session_id=' + s_id);
+            window.location.href = "/vote?session_id=" + s_id;
+        });
+    </script>
+</head>
+
+<body>
+    <div>
+        <p><a href="" class="vote">Abstimmen</a></p>
+    </div>
+</body>
+
 </html>

@@ -22,32 +22,29 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
 
-@app.get("/", response_class=HTMLResponse)
-async def root(request: Request, session_id : str = "", db: Annotated[Session, Depends(get_db)] = None):
-    if session_id == "":
-        return templates.TemplateResponse(
-            request=request, name="landing.html"
-        )
-    else:
-        songs = [Song(**s.__dict__, vote=v) for s, v in get_songs_and_vote_for_session(db, session_id)]
+@app.get("/")
+async def root(request: Request) -> HTMLResponse:
+    return templates.TemplateResponse(
+        request=request, name="landing.html"
+    )
 
-        songs_by_category = {}
-        all_categories = set()
-        for song in songs:
-            if song.main_category not in songs_by_category:
-                songs_by_category[song.main_category] = []
-            songs_by_category[song.main_category].append(song)
-            all_categories.update(song.categories.keys())
-        return templates.TemplateResponse(
-            request=request, name="voting.html", context={
-                "songs_by_category": songs_by_category, 
-                "all_categories": {c: i+1 for i, c in enumerate(all_categories)},
-                "session_id": session_id
-                }
-        )
 
-#@app.get("/vote", response_class=HTMLResponse)
-#async def vote(request: Request, session_id : str = ""):
-#    return templates.TemplateResponse(
-#        request=request, name="voting-old.html"
-#    )
+
+@app.get("/vote")
+async def vote(request: Request, session_id : str, db: Annotated[Session, Depends(get_db)]) -> HTMLResponse:
+    songs = [Song(**s.__dict__, vote=v) for s, v in get_songs_and_vote_for_session(db, session_id)]
+
+    songs_by_category = {}
+    all_categories = set()
+    for song in songs:
+        if song.main_category not in songs_by_category:
+            songs_by_category[song.main_category] = []
+        songs_by_category[song.main_category].append(song)
+        all_categories.update(song.categories.keys())
+    return templates.TemplateResponse(
+        request=request, name="voting.html", context={
+            "songs_by_category": songs_by_category, 
+            "all_categories": {c: i+1 for i, c in enumerate(all_categories)},
+            "session_id": session_id
+            }
+    )
