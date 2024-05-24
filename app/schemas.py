@@ -1,6 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel
 
+
 class Song(BaseModel):
     id: int
     og_artist: Optional[str]

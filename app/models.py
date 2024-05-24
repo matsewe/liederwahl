@@ -34,6 +34,7 @@ class Session(Base):
     time_updated: Mapped[Optional[datetime]
                          ] = mapped_column(onupdate=func.now())
 
+
 class Vote(Base):
     __tablename__ = 'votes'
     id: Mapped[int] = mapped_column(primary_key=True)

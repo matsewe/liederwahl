@@ -28,11 +28,11 @@
             })
         }
 
-        $( window ).on("load", activate_session);
+        $(window).on("load", activate_session);
 
-        $( window ).on("beforeunload", deactivate_session);
-        $( window ).on("pagehide", deactivate_session);
-        $(document).on('visibilitychange', function() {
+        $(window).on("beforeunload", deactivate_session);
+        $(window).on("pagehide", deactivate_session);
+        $(document).on('visibilitychange', function () {
             if (document.visibilityState == 'hidden') {
                 deactivate_session();
             } else {
