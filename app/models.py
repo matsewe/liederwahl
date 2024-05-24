@@ -14,6 +14,7 @@ class Song(Base):
     aca_artist: Mapped[Optional[str]]
     title: Mapped[Optional[str]]
     url: Mapped[Optional[str]]
+    source: Mapped[Optional[str]]
     yt_id: Mapped[Optional[str]]
     spfy_id: Mapped[Optional[str]]
     thumbnail: Mapped[Optional[str]]
