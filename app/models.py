@@ -24,6 +24,7 @@ class Song(Base):
     categories: Mapped[Optional[dict[str, bool]]]
     main_category: Mapped[Optional[str]]
     singable: Mapped[Optional[bool]]
+    comment: Mapped[Optional[str]]
 
 
 class Session(Base):
@@ -42,6 +43,13 @@ class Vote(Base):
     song_id: Mapped[int] = mapped_column(Integer, ForeignKey("songs.id"))
     session_id: Mapped[int] = mapped_column(Integer, ForeignKey("sessions.id"))
     vote: Mapped[Optional[int]]
+    comment: Mapped[Optional[str]]
     time_created: Mapped[datetime] = mapped_column(server_default=func.now())
     time_updated: Mapped[Optional[datetime]
                          ] = mapped_column(onupdate=func.now())
+
+class Config(Base):
+    __tablename__ = 'config'
+    #id: Mapped[int] = mapped_column(primary_key=True)
+    key: Mapped[str] = mapped_column(primary_key=True)
+    value: Mapped[object]

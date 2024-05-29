@@ -17,4 +17,6 @@ class Song(BaseModel):
     categories: Optional[dict[str, bool]]
     main_category: Optional[str]
     singable: Optional[bool]
+    comment: Optional[str]
     vote: Optional[int]
+    vote_comment: Optional[str]

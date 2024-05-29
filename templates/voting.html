@@ -9,6 +9,19 @@
     <link rel="shortcut icon" href="https://choriosity.de/assets/images/favicon.svg" type="image/svg+xml">
 
     <link rel="stylesheet" type="text/css" href="/static/site.css">
+    {% if veto_mode %}
+    <style type="text/css">
+        .comment {
+            width: 100%;
+            margin-top: 0.3em;
+            font-size: 1.2em;
+        }
+        .not_singable {
+            background-color: color-mix(in srgb, #e1412f 30%, #f0f0f0);
+        }
+    </style>
+    {% endif %}
+
     <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script type="text/javascript">
@@ -119,12 +132,22 @@
             switch (vote) {
                 case 0:
                     neutral_button.addClass("selected")
+                    {% if veto_mode %}
+                    $("#song-" + song_id).removeClass("not_singable")
+                    {% endif %}
                     break;
                 case 1:
                     yes_button.addClass("selected")
+                    {% if veto_mode %}
+                    $("#song-" + song_id).removeClass("not_singable")
+                    {% endif %}
                     break;
                 case -1:
                     no_button.addClass("selected")
+                    {% if veto_mode %}
+                    $("#song-" + song_id).addClass("not_singable")
+                    {% endif %}
+                    break;
                 default:
                     break;
             }
@@ -134,18 +157,35 @@
                 method: "POST"
             })
         }
+
+        {% if veto_mode %}
+        function updateComment(song_id, el) {
+            comment = el.value
+            $.ajax({
+                url: "/songs/" + song_id + "/comment?" + $.param({ session_id: session_id, comment: comment }),
+                method: "POST"
+            })
+        }
+        {% endif %}
     </script>
 </head>
 
 <body>
+    {% if veto_mode %}
+    <h1>Veto Mode</h1>
+    <div class="text">Du kannst ungeeignete Vorschläge durch eine Nein-Stimme markieren und Kommentare zu allen Liedern abgeben.
+    </div>
+    {% else %}
     <h1>Hallo :)</h1>
     <div class="text">Du kannst die Liederwahl jederzeit unterbrechen und zu einem späteren Zeitpunkt weitermachen.
     </div>
+    {% endif %}
     <div id="songs">
         {% for main_category, songs in songs_by_category.items() %}
         <h1 style="--hue: {{ all_categories[main_category] / all_categories|length }};">{{ main_category }}</h1>
         {% for song in songs -%}
-        <div class="song" id="song-{{ song.id }}">
+        <div class="song{% if (song.vote == -1) or (not song.vote and not song.singable) %} not_singable{% endif %}"
+            id="song-{{ song.id }}">
             <div class="cover-container">
                 <img src="{{ song.thumbnail }}" class="cover">
                 <div class="overlay"
@@ -163,7 +203,7 @@
                 endif %}{% endfor %}<span style="--main-color: transparent;">&nbsp;</span>
             </div>
             <div class="vote-buttons">
-                <div class="button button-no {% if song.vote == -1 %}selected{% endif %}"
+                <div class="button button-no {% if (song.vote == -1) or (not song.vote and not song.singable) %}selected{% endif %}"
                     onmousedown="vote({{ song.id }}, -1); return false;" onclick="return false;"><img
                         src="/static/no.svg">
                 </div>
@@ -176,6 +216,11 @@
                 </div>
             </div>
             <div class="clear"></div>
+            {% if veto_mode %}
+            <input type="text" class="comment"
+                value="{% if song.vote_comment %}{{ song.vote_comment }}{% else %}{% if song.comment %}{{ song.comment }}{% else %}{% endif %}{% endif %}"
+                placeholder="Kommentar" onchange="updateComment({{ song.id }}, this);">
+            {% endif %}
         </div>
         {% endfor %}
         {% endfor %}

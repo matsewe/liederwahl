@@ -21,5 +21,6 @@ async def get_db():
 
 class Base(DeclarativeBase):
     type_annotation_map = {
-        dict[str, bool]: PickleType
+        dict[str, bool]: PickleType,
+        object: PickleType
     }

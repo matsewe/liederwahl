@@ -10,9 +10,7 @@ def get_songs_and_vote_for_session(db, session_name) -> list[models.Song]:
         models.Vote.session_id == session_entry.id).subquery()
 
     songs_and_votes = db.query(
-        models.Song, votes.c.vote
-    ).filter(
-        models.Song.singable == True
+        models.Song, votes.c.vote, votes.c.comment
     ).join(votes, isouter=True).filter().all()
 
     return songs_and_votes
@@ -46,7 +44,8 @@ def create_song(db,
                 arng_url,
                 categories,
                 main_category,
-                singable
+                singable,
+                comment
                 ):
     s = models.Song(og_artist=og_artist,
                     aca_artist=aca_artist,
@@ -61,7 +60,8 @@ def create_song(db,
                     arng_url=arng_url,
                     categories=categories,
                     main_category=main_category,
-                    singable=singable)
+                    singable=singable,
+                    comment=comment)
 
     db.add(s)
     db.commit()
@@ -80,6 +80,21 @@ def create_or_update_vote(db, song_id, session_name, vote):
         db.add(vote_entry)
     db.commit()
 
+def create_or_update_comment(db, song_id, session_name, comment):
+    session_entry = activate_session(db, session_name)
+
+    if comment == "":
+        comment = None
+
+    vote_entry = db.query(models.Vote).filter(
+        (models.Vote.session_id == session_entry.id) & (models.Vote.song_id == song_id)).first()
+    if vote_entry:
+        vote_entry.comment = comment  # type: ignore
+    else:
+        vote_entry = models.Vote(
+            song_id=song_id, session_id=session_entry.id, comment=comment)
+        db.add(vote_entry)
+    db.commit()
 
 def activate_session(db, session_name):
     session_entry = db.query(models.Session).filter(
@@ -103,4 +118,21 @@ def deactivate_session(db, session_name):
     else:
         session_entry = models.Session(session_name=session_name, active=False)
         db.add(session_entry)
+    db.commit()
+
+
+def get_setting(db, key):
+    entry = db.query(models.Config.value).filter(models.Config.key == key).first()
+    if entry:
+        return entry[0]
+    else:
+        return None
+
+def set_setting(db, key, value):
+    setting_entry = db.query(models.Config).filter(models.Config.key == key).first()
+    if setting_entry:
+        setting_entry.value = value
+    else:
+        setting_entry = models.Config(key=key, value=value)
+        db.add(setting_entry)
     db.commit()

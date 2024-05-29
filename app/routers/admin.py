@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db, engine, Base
 from app.routers.user import get_current_user
-from app.crud import create_song
+from app.crud import create_song, get_setting, set_setting
 
 router = APIRouter(
     prefix="/admin",
@@ -66,7 +66,7 @@ def get_spotify_id(url):
 
 
 @router.post("/load_list")
-async def create_upload_file(db: Session = Depends(get_db)):
+async def create_upload_file(include_non_singable: bool = False, db: Session = Depends(get_db)):
 
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
@@ -78,7 +78,13 @@ async def create_upload_file(db: Session = Depends(get_db)):
     category_names = list(song_list.iloc[0][8:17])
 
     for i, row in song_list[1:].iterrows():
+        if (row[17] == "nein") and not include_non_singable:
+            continue
+
         row = np.array(row)
+
+        if not row[2]: # no title
+            continue
 
         yt_id = get_youtube_id(row[3])
         spfy_id = get_spotify_id(row[3])
@@ -86,8 +92,10 @@ async def create_upload_file(db: Session = Depends(get_db)):
         categories = {n: v for n, v in zip(
             category_names, row[8:17] != None)}
 
-        if (not np.any(list(categories.values()))) and (row[5] != "ja"):
-            continue
+        if (not np.any(list(categories.values()))):
+            main_category = None
+        else:
+            main_category = category_names[get_main_category(row[8:17])]
 
         create_song(db,
                     og_artist=row[0],
@@ -102,6 +110,18 @@ async def create_upload_file(db: Session = Depends(get_db)):
                     is_aca=row[6] == "ja",
                     arng_url=row[7],
                     categories=categories,
-                    main_category=category_names[get_main_category(row[8:17])],
-                    singable=row[17] != "nein"
+                    main_category=main_category,
+                    singable=row[17] != "nein",
+                    comment=row[18]
                     )
+
+
+@router.post("/toggle_veto_mode")
+async def toggle_veto_mode(db: Session = Depends(get_db)) -> bool:
+    veto_setting = get_setting(db, "veto_mode")
+    if veto_setting:
+        set_setting(db, "veto_mode", False)
+        return False
+    else:
+        set_setting(db, "veto_mode", True)
+        return True
