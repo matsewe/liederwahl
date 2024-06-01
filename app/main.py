@@ -10,9 +10,23 @@ from typing import Annotated
 from app.schemas import Song
 import json
 
+from starlette.middleware import Middleware
+
+from starlette_context import context, plugins
+from starlette_context.middleware import RawContextMiddleware
+
 Base.metadata.create_all(engine)
 
-app = FastAPI()
+middleware = [
+    Middleware(
+        RawContextMiddleware,
+        plugins=(
+            plugins.ForwardedForPlugin(),
+        )
+    )
+]
+
+app = FastAPI(middleware=middleware)
 
 app.include_router(admin.router)
 app.include_router(user.router)

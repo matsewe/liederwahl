@@ -1,6 +1,8 @@
 import app.models as models
-from sqlalchemy import func
+from sqlalchemy import func, and_
 from sqlalchemy.orm.attributes import flag_modified
+from starlette_context import context
+from starlette_context.header_keys import HeaderKeys
 
 
 def get_songs_and_vote_for_session(db, session_name) -> list[models.Song]:
@@ -80,6 +82,7 @@ def create_or_update_vote(db, song_id, session_name, vote):
         db.add(vote_entry)
     db.commit()
 
+
 def create_or_update_comment(db, song_id, session_name, comment):
     session_entry = activate_session(db, session_name)
 
@@ -96,14 +99,20 @@ def create_or_update_comment(db, song_id, session_name, comment):
         db.add(vote_entry)
     db.commit()
 
+
 def activate_session(db, session_name):
-    session_entry = db.query(models.Session).filter(
-        (models.Session.session_name == session_name)).first()
+    ip = context.data[HeaderKeys.forwarded_for]
+
+    session_entry = db.query(models.Session).filter(and_(
+        models.Session.session_name == session_name, models.Session.ip == ip)).first()
     if session_entry:
+        print(session_entry.__dict__)
         session_entry.active = True
     else:
-        session_entry = models.Session(session_name=session_name, active=True)
+        session_entry = models.Session(
+            session_name=session_name, active=True, ip=ip)
         db.add(session_entry)
+
     flag_modified(session_entry, "active")
     db.commit()
 
@@ -111,25 +120,32 @@ def activate_session(db, session_name):
 
 
 def deactivate_session(db, session_name):
-    session_entry = db.query(models.Session).filter(
-        (models.Session.session_name == session_name)).first()
+    ip = context.data[HeaderKeys.forwarded_for]
+
+    session_entry = db.query(models.Session).filter(and_(
+        models.Session.session_name == session_name, models.Session.ip == ip)).first()
     if session_entry:
         session_entry.active = False
+        flag_modified(session_entry, "active")
+        db.commit()
     else:
-        session_entry = models.Session(session_name=session_name, active=False)
-        db.add(session_entry)
-    db.commit()
+        pass
+        # session_entry = models.Session(session_name=session_name, ip=ip, active=False)
+        # db.add(session_entry)
 
 
 def get_setting(db, key):
-    entry = db.query(models.Config.value).filter(models.Config.key == key).first()
+    entry = db.query(models.Config.value).filter(
+        models.Config.key == key).first()
     if entry:
         return entry[0]
     else:
         return None
 
+
 def set_setting(db, key, value):
-    setting_entry = db.query(models.Config).filter(models.Config.key == key).first()
+    setting_entry = db.query(models.Config).filter(
+        models.Config.key == key).first()
     if setting_entry:
         setting_entry.value = value
     else:
