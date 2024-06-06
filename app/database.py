@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
-from sqlalchemy.types import PickleType
+from sqlalchemy.types import PickleType, JSON
 
 import os
 
@@ -23,5 +23,5 @@ class Base(DeclarativeBase):
     type_annotation_map = {
         dict[str, bool]: PickleType,
         object: PickleType,
-        set: PickleType
+        list[str]: JSON
     }

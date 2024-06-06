@@ -102,18 +102,21 @@ def create_or_update_comment(db, song_id, session_name, comment):
 
 def activate_session(db, session_name):
     ip = context.data[HeaderKeys.forwarded_for]
+    user_agent = context.data[HeaderKeys.user_agent]
 
     session_entry = db.query(models.Session).filter(and_(
-        models.Session.session_name == session_name, models.Session.ip == ip)).first()
+        models.Session.session_name == session_name)).first() # , models.Session.ip == ip, models.Session.user_agent == user_agent
     if session_entry:
-        print(session_entry.__dict__)
+        if ip not in session_entry.ips:
+            session_entry.ips.append(ip)
         session_entry.active = True
     else:
         session_entry = models.Session(
-            session_name=session_name, active=True, ip=ip)
+            session_name=session_name, active=True, ips=[ip]) # , ip=ip, user_agent=user_agent
         db.add(session_entry)
 
     flag_modified(session_entry, "active")
+    flag_modified(session_entry, "ips")
     db.commit()
 
     return session_entry
@@ -121,9 +124,10 @@ def activate_session(db, session_name):
 
 def deactivate_session(db, session_name):
     ip = context.data[HeaderKeys.forwarded_for]
+    user_agent = context.data[HeaderKeys.user_agent]
 
     session_entry = db.query(models.Session).filter(and_(
-        models.Session.session_name == session_name, models.Session.ip == ip)).first()
+        models.Session.session_name == session_name)).first() # , models.Session.ip == ip, models.Session.user_agent == user_agent
     if session_entry:
         session_entry.active = False
         flag_modified(session_entry, "active")

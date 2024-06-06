@@ -32,7 +32,7 @@ class Session(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     session_name: Mapped[str]
     active: Mapped[bool]
-    ip: Mapped[str]
+    ips: Mapped[list[str]]
     first_seen: Mapped[datetime] = mapped_column(server_default=func.now())
     last_seen: Mapped[Optional[datetime]
                          ] = mapped_column(onupdate=func.now())

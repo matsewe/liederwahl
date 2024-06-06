@@ -22,6 +22,7 @@ middleware = [
         RawContextMiddleware,
         plugins=(
             plugins.ForwardedForPlugin(),
+            plugins.UserAgentPlugin()
         )
     )
 ]

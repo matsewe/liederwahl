@@ -15,6 +15,9 @@
             width: 100%;
             margin-top: 0.3em;
             font-size: 1.2em;
+            border: 1px solid white;
+            border-radius: 0.2em;
+            padding: 0.1em;
         }
         .not_singable {
             background-color: color-mix(in srgb, #e1412f 30%, #f0f0f0);
@@ -218,8 +221,8 @@
             <div class="clear"></div>
             {% if veto_mode %}
             <input type="text" class="comment"
-                value="{% if song.vote_comment %}{{ song.vote_comment }}{% else %}{% if song.comment %}{{ song.comment }}{% else %}{% endif %}{% endif %}"
-                placeholder="Kommentar" onchange="updateComment({{ song.id }}, this);">
+                value="{% if song.vote_comment %}{{ song.vote_comment }}{% else %}{% endif %}"
+                placeholder="{% if song.comment %}{{ song.comment }}{% else %}Kommentar{% endif %}" onchange="updateComment({{ song.id }}, this);">
             {% endif %}
         </div>
         {% endfor %}
