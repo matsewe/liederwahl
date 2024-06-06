@@ -3,19 +3,26 @@ from app.routers import admin, user, songs, session
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from app.database import engine, Base, get_db
+from app.database import engine, Base, get_db, SessionLocal
 from app.crud import get_songs_and_vote_for_session, get_setting
 from sqlalchemy.orm import Session
 from typing import Annotated
 from app.schemas import Song
 import json
+import os
+import asyncio
 
 from starlette.middleware import Middleware
 
 from starlette_context import context, plugins
 from starlette_context.middleware import RawContextMiddleware
 
-Base.metadata.create_all(engine)
+if os.path.isfile("first_run"):
+    with SessionLocal() as db:
+        asyncio.run(admin.create_upload_file(include_non_singable=True, db=db))
+    os.remove("first_run")
+
+#Base.metadata.create_all(engine)
 
 middleware = [
     Middleware(
