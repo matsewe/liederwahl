@@ -17,7 +17,7 @@ from starlette.middleware import Middleware
 from starlette_context import context, plugins
 from starlette_context.middleware import RawContextMiddleware
 
-if os.path.isfile("first_run") and os.environ.get("RELOAD_ON_FIRST_RUN"):
+if os.path.isfile("first_run") and (os.environ.get("RELOAD_ON_FIRST_RUN").lower() == "true"):
     print("First run ... load data")
     with SessionLocal() as db:
         asyncio.run(admin.create_upload_file(include_non_singable=True, db=db))
