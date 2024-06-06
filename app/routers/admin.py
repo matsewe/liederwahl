@@ -68,10 +68,13 @@ def get_spotify_id(url):
 @router.post("/load_list")
 async def create_upload_file(include_non_singable: bool = False, db: Session = Depends(get_db)):
 
+    print("load list")
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
     song_list = pd.read_excel(os.environ['LIST_URL'])
+
+    print(song_list)
     song_list = song_list.replace({np.nan: None})
     song_list = song_list.replace({"n/a": None})
 
