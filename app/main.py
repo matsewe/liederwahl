@@ -1,5 +1,5 @@
-from fastapi import FastAPI, Request, Depends
-from app.routers import admin, user, songs, session
+from fastapi import FastAPI, Request, Depends, Cookie, Security
+from app.routers import admin, songs, session
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -11,6 +11,8 @@ from app.schemas import Song
 import json
 import os
 import asyncio
+from jose import JWTError, jwt
+from app.security import get_current_user
 
 from starlette.middleware import Middleware
 
@@ -23,7 +25,7 @@ if os.path.isfile("first_run") and (os.environ.get("RELOAD_ON_FIRST_RUN").lower(
         asyncio.run(admin.create_upload_file(include_non_singable=True, db=db))
     os.remove("first_run")
 
-#Base.metadata.create_all(engine)
+# Base.metadata.create_all(engine)
 
 middleware = [
     Middleware(
@@ -38,7 +40,6 @@ middleware = [
 app = FastAPI(middleware=middleware)
 
 app.include_router(admin.router)
-app.include_router(user.router)
 app.include_router(songs.router)
 app.include_router(session.router)
 
@@ -55,14 +56,18 @@ async def root(request: Request) -> HTMLResponse:
 
 
 @app.get("/vote")
-async def vote(request: Request, session_id: str, unordered: bool = False, db: Session = Depends(get_db)) -> HTMLResponse:
+async def vote(request: Request, session_id: str, unordered: bool = False, user = Security(get_current_user, scopes=[]),
+               db: Session = Depends(get_db)) -> HTMLResponse:
+
+    print(user)
+
     veto_mode = get_setting(db, "veto_mode")
 
     songs = [Song(**s.__dict__, vote=v, vote_comment=c)
              for s, v, c in get_songs_and_vote_for_session(db, session_id)]
 
     if unordered:
-        songs_by_category = {"Alle Lieder" : songs}
+        songs_by_category = {"Alle Lieder": songs}
         all_categories = {"Alle Lieder"}
         for song in songs:
             all_categories.update(song.categories.keys())

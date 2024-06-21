@@ -7,7 +7,7 @@ from fastapi import APIRouter, Security, Depends
 from sqlalchemy.orm import Session
 
 from app.database import get_db, engine, Base
-from app.routers.user import get_current_user
+from app.security import get_current_user
 from app.crud import create_song, get_setting, set_setting
 
 router = APIRouter(
