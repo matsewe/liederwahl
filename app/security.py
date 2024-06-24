@@ -13,10 +13,8 @@ import os
 ALGORITHM = "HS512"
 SECRET_KEY = os.environ['SECRET_KEY']
 
-fake_user_db = {
-    os.environ['ADMIN_EMAIL'] : {
-        "scopes" : ["admin"]
-    }
+scopes_db = {
+    os.environ['ADMIN_EMAIL'] : ["admin"]
 }
 
 credentials_exception = HTTPException(
@@ -35,10 +33,8 @@ async def get_current_user(
         email: str = payload.get("email")  # type: ignore
     except (JWTError, ValidationError):
         raise credentials_exception
-    user = fake_user_db.get(email)
-    if user is None:
-        raise credentials_exception
+    scopes = scopes_db.get(email)
     for scope in security_scopes.scopes:
-        if scope not in user["scopes"]:
+        if scope not in scopes:
             raise credentials_exception
-    return user | {"token_payload" : payload}
+    return payload | {"internal_scopes" : scopes}
