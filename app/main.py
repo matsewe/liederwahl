@@ -62,7 +62,7 @@ async def vote(request: Request, session_id: str | None = None , unordered: bool
     if not session_id:
         session_id = user["sub"]
 
-    print(user)
+    #print(user)
 
     veto_mode = get_setting(db, "veto_mode")
 
