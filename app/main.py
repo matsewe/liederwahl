@@ -48,16 +48,19 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
+#@app.get("/")
+#async def root(request: Request) -> HTMLResponse:
+#    return templates.TemplateResponse(
+#        request=request, name="landing.html"
+#    )
+
+
 @app.get("/")
-async def root(request: Request) -> HTMLResponse:
-    return templates.TemplateResponse(
-        request=request, name="landing.html"
-    )
-
-
-@app.get("/vote")
-async def vote(request: Request, session_id: str, unordered: bool = False, user = Security(get_current_user, scopes=[]),
+async def vote(request: Request, session_id: str | None = None , unordered: bool = False, user=Security(get_current_user, scopes=[]),
                db: Session = Depends(get_db)) -> HTMLResponse:
+
+    if not session_id:
+        session_id = user["sub"]
 
     print(user)
 
