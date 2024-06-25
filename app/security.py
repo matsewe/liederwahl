@@ -29,7 +29,7 @@ async def get_current_user(
         email: str = request.headers.get("x-auth-request-email")  # type: ignore
     except (JWTError, ValidationError):
         raise credentials_exception
-    scopes = scopes_db.get(email)
+    scopes = scopes_db.get(email, [])
     for scope in security_scopes.scopes:
         if scope not in scopes:
             raise credentials_exception
