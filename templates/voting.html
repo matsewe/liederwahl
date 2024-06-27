@@ -19,6 +19,7 @@
             border-radius: 0.2em;
             padding: 0.1em;
         }
+
         .not_singable {
             background-color: color-mix(in srgb, #e1412f 30%, #f0f0f0);
         }
@@ -124,41 +125,49 @@
         }
 
         function vote(song_id, vote) {
-            no_button = $("#song-" + song_id).find(".button-no")
-            yes_button = $("#song-" + song_id).find(".button-yes")
-            neutral_button = $("#song-" + song_id).find(".button-neutral")
-
-            no_button.removeClass("selected")
-            yes_button.removeClass("selected")
-            neutral_button.removeClass("selected")
-
-            switch (vote) {
-                case 0:
-                    neutral_button.addClass("selected")
-                    {% if veto_mode %}
-                    $("#song-" + song_id).removeClass("not_singable")
-                    {% endif %}
-                    break;
-                case 1:
-                    yes_button.addClass("selected")
-                    {% if veto_mode %}
-                    $("#song-" + song_id).removeClass("not_singable")
-                    {% endif %}
-                    break;
-                case -1:
-                    no_button.addClass("selected")
-                    {% if veto_mode %}
-                    $("#song-" + song_id).addClass("not_singable")
-                    {% endif %}
-                    break;
-                default:
-                    break;
-            }
 
             $.ajax({
                 url: "/songs/" + song_id + "/vote?" + $.param({ session_id: session_id, vote: vote }),
-                method: "POST"
-            })
+                method: "POST",
+                success: function (data, textStatus) {
+
+                    no_button = $("#song-" + song_id).find(".button-no")
+                    yes_button = $("#song-" + song_id).find(".button-yes")
+                    neutral_button = $("#song-" + song_id).find(".button-neutral")
+
+                    no_button.removeClass("selected")
+                    yes_button.removeClass("selected")
+                    neutral_button.removeClass("selected")
+
+                    switch (vote) {
+                        case 0:
+                            neutral_button.addClass("selected")
+                            {% if veto_mode %}
+                            $("#song-" + song_id).removeClass("not_singable")
+                            {% endif %}
+                            break;
+                        case 1:
+                            yes_button.addClass("selected")
+                            {% if veto_mode %}
+                            $("#song-" + song_id).removeClass("not_singable")
+                            {% endif %}
+                            break;
+                        case -1:
+                            no_button.addClass("selected")
+                            {% if veto_mode %}
+                            $("#song-" + song_id).addClass("not_singable")
+                            {% endif %}
+                            break;
+                        default:
+                            break;
+                    }
+
+                }
+            });
+
+
+
+
         }
 
         {% if veto_mode %}
@@ -176,7 +185,8 @@
 <body>
     {% if veto_mode %}
     <h1>Vorschau Modus</h1>
-    <div class="text">Du kannst ungeeignete Vorschläge durch eine Nein-Stimme markieren und Kommentare zu allen Liedern abgeben.
+    <div class="text">Du kannst ungeeignete Vorschläge durch eine Nein-Stimme markieren und Kommentare zu allen Liedern
+        abgeben.
     </div>
     {% else %}
     <h1>Hallo :)</h1>
@@ -222,7 +232,8 @@
             {% if veto_mode %}
             <input type="text" class="comment"
                 value="{% if song.vote_comment %}{{ song.vote_comment }}{% else %}{% endif %}"
-                placeholder="{% if song.comment %}{{ song.comment }}{% else %}Kommentar{% endif %}" onchange="updateComment({{ song.id }}, this);">
+                placeholder="{% if song.comment %}{{ song.comment }}{% else %}Kommentar{% endif %}"
+                onchange="updateComment({{ song.id }}, this);">
             {% endif %}
         </div>
         {% endfor %}
